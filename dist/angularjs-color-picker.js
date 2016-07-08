@@ -4,7 +4,7 @@
  *
  * Copyright 2016 ruhley
  *
- * 2016-07-08 12:57:41
+ * 2016-07-08 14:24:39
  *
  */
 if (typeof module !== "undefined" && typeof exports !== "undefined" && module.exports === exports){
@@ -222,9 +222,9 @@ if (typeof module !== "undefined" && typeof exports !== "undefined" && module.ex
                         $scope.log('Hide Event');
 
                         $scope.visible = false;
-                        $scope.$apply();
 
                         $scope.colorPickerOnClose();
+                        $scope.$apply();
                     }
                 };
 
