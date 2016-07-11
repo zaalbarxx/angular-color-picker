@@ -4,7 +4,7 @@
  *
  * Copyright 2016 ruhley
  *
- * 2016-07-11 11:33:11
+ * 2016-07-11 11:50:27
  *
  */
 
@@ -196,8 +196,6 @@
                   _this4.opacityUpdate();
 
                   _this4.callApiFunction('onOpen');
-
-                  _this4.$scope.$apply();
               };
 
               this.api.close = function () {
