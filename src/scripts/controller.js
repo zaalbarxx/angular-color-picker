@@ -160,8 +160,6 @@ export default class AngularColorPickerController {
             this.opacityUpdate();
 
             this.callApiFunction('onOpen');
-
-            this.$scope.$apply();
         };
 
         this.api.close = () => {
