@@ -30,7 +30,8 @@ export default class AngularColorPickerController {
         this.$scope.$watchGroup(
             [
                 'AngularColorPickerController.options.format',
-                'AngularColorPickerController.options.alpha',
+                'AngularColorPickerController.options.showHue',
+                'AngularColorPickerController.options.showAlpha',
                 'AngularColorPickerController.options.case'
             ],
             this.reInitAndUpdate.bind(this)
@@ -96,7 +97,7 @@ export default class AngularColorPickerController {
                 this.saturation = hsl.s * 100;
                 this.lightness = hsl.v * 100;
 
-                if (this.options.alpha) {
+                if (this.options.showAlpha) {
                     this.opacity = hsl.a * 100;
                 }
 
@@ -212,6 +213,10 @@ export default class AngularColorPickerController {
         this.find('.color-picker-grid').on('click', this.onColorClick.bind(this));
         this.find('.color-picker-hue').on('click', this.onHueClick.bind(this));
         this.find('.color-picker-opacity').on('click', this.onOpacityClick.bind(this));
+
+        if(this.options.isRound) {
+            this.find('.color-picker-panel').addClass('color-picker-panel--round');
+        }
     }
 
     onMouseDown (event) {
@@ -318,7 +323,9 @@ export default class AngularColorPickerController {
         }
 
         this.options.disabled = this.options.disabled === undefined ? false : this.options.disabled;
-        this.options.alpha = this.options.alpha === undefined ? true : this.options.alpha;
+        this.options.showHue = this.options.showHue === undefined ? true : this.options.showHue;
+        this.options.showAlpha = this.options.showAlpha === undefined ? true : this.options.showAlpha;
+        this.options.isRound = !this.options.showHue && !this.options.showAlpha;
         this.options.case = this.options.case === undefined ? 'upper' : this.options.case;
         this.options.format = this.options.format === undefined ? 'hsl' : this.options.format;
         this.options.pos = this.options.pos === undefined ? 'bottom left' : this.options.pos;
@@ -363,7 +370,7 @@ export default class AngularColorPickerController {
         var color = tinycolor({h: this.hue, s: this.saturation / 100, v: this.lightness / 100}),
             colorString;
 
-        if (this.options.alpha) {
+        if (this.options.showAlpha) {
             color.setAlpha(this.opacity / 100);
         }
 
@@ -458,9 +465,17 @@ export default class AngularColorPickerController {
             var el = angular.element(this.$element[0].querySelector('.color-picker-grid .color-picker-picker'));
             var bounding = container.getBoundingClientRect();
 
-            el.css({
-                'left': (bounding.width * this.saturationPos / 100) + 'px',
-            });
+            if(this.options.isRound) {
+                el.css({
+                    left: (bounding.width * this.xPos / 100) + 'px',
+                    top: (bounding.height * this.yPos / 100) + 'px',
+                });
+            }
+            else {
+                el.css({
+                    'left': (bounding.width * this.saturationPos / 100) + 'px',
+                });
+            }
         });
     }
 
@@ -593,31 +608,58 @@ export default class AngularColorPickerController {
         var el = this.find('.color-picker-grid-inner');
         var offset = this.offset(el);
 
-        this.saturation = ((event.pageX - offset.left) / el.prop('offsetWidth')) * 100;
-        this.lightness = (1 - ((event.pageY - offset.top) / el.prop('offsetHeight'))) * 100;
+        if(this.options.isRound) {
+            var dx = ((event.pageX - offset.left) * 2.0  / el.prop('offsetWidth')) - 1.0;
+            var dy = -((event.pageY - offset.top) * 2.0  / el.prop('offsetHeight')) + 1.0;
 
-        if (this.saturation > 100) {
-            this.saturation = 100;
-        } else if (this.saturation < 0) {
-            this.saturation = 0;
+            var tmpSaturation = Math.sqrt(dx*dx + dy*dy);
+            var tmpHue = Math.atan2(dy, dx);
+
+            this.saturation = 100 * tmpSaturation;
+            var degHue = tmpHue * 57.29577951308233; // rad to deg
+            if (degHue < 0.0)
+                degHue += 360.0;
+            this.hue = degHue;
+            this.lightness =  100;
         }
+        else {
+            this.saturation = ((event.pageX - offset.left) / el.prop('offsetWidth')) * 100;
+            this.lightness = (1 - ((event.pageY - offset.top) / el.prop('offsetHeight'))) * 100;
 
-        if (this.lightness > 100) {
-            this.lightness = 100;
-        } else if (this.lightness < 0) {
-            this.lightness = 0;
+            if (this.saturation > 100) {
+                this.saturation = 100;
+            } else if (this.saturation < 0) {
+                this.saturation = 0;
+            }
+
+            if (this.lightness > 100) {
+                this.lightness = 100;
+            } else if (this.lightness < 0) {
+                this.lightness = 0;
+            }
         }
     }
 
     saturationUpdate (oldValue) {
         if (this.saturation !== undefined) {
-            this.saturationPos = (this.saturation / 100) * 100;
+            if (this.options.isRound) {
+                var angle = this.hue * 0.01745329251994; // deg to rad
+                var px = Math.cos(angle) * this.saturation;
+                var py = -Math.sin(angle) * this.saturation ;
 
-            if (this.saturationPos < 0) {
-                this.saturationPos = 0;
-            } else if (this.saturationPos > 100) {
-                this.saturationPos = 100;
+                this.xPos = (px + 100.0) * 0.5;
+                this.yPos =  (py + 100.0) * 0.5;
             }
+            else {
+                this.saturationPos = (this.saturation / 100) * 100;
+
+                if (this.saturationPos < 0) {
+                    this.saturationPos = 0;
+                } else if (this.saturationPos > 100) {
+                    this.saturationPos = 100;
+                }
+            }
+
 
             this.saturationPosUpdate();
             this.update();

@@ -24,10 +24,10 @@ export default function template($templateCache) {
         '                   <div></div>\n' +
         '               </div>\n' +
         '           </div>\n' +
-        '           <div class="color-picker-hue color-picker-sprite">\n' +
+        '           <div class="color-picker-hue color-picker-sprite" ng-show="AngularColorPickerController.options.showHue">\n' +
         '               <div class="color-picker-slider"></div>\n' +
         '           </div>\n' +
-        '           <div class="color-picker-opacity color-picker-sprite" ng-show="AngularColorPickerController.options.alpha && AngularColorPickerController.options.format !== \'hex\'">\n' +
+        '           <div class="color-picker-opacity color-picker-sprite" ng-show="AngularColorPickerController.options.showAlpha && AngularColorPickerController.options.format !== \'hex\'">\n' +
         '               <div class="color-picker-slider"></div>\n' +
         '           </div>\n' +
         '       </div>\n' +
