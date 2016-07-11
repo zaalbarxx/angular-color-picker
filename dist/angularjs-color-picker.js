@@ -1,10 +1,10 @@
 /*!
- * angularjs-color-picker v2.0.0
+ * angularjs-color-picker v2.1.0
  * https://github.com/ruhley/angular-color-picker/
  *
  * Copyright 2016 ruhley
  *
- * 2016-07-11 11:02:03
+ * 2016-07-11 11:33:11
  *
  */
 
@@ -196,15 +196,17 @@
                   _this4.opacityUpdate();
 
                   _this4.callApiFunction('onOpen');
+
+                  _this4.$scope.$apply();
               };
 
               this.api.close = function () {
                   if (!_this4.options.inline && (_this4.visible || _this4.$element[0].querySelector('.color-picker-panel').offsetParent !== null)) {
 
                       _this4.visible = false;
-                      _this4.$scope.$apply();
-
                       _this4.callApiFunction('onClose');
+
+                      _this4.$scope.$apply();
                   }
               };
           }
@@ -371,17 +373,21 @@
               }
 
               this.options.disabled = this.options.disabled === undefined ? false : this.options.disabled;
+
               this.options.showHue = this.options.showHue === undefined ? true : this.options.showHue;
               this.options.showAlpha = this.options.showAlpha === undefined ? true : this.options.showAlpha;
               this.options.isRound = !this.options.showHue && !this.options.showAlpha;
+
               this.options.case = this.options.case === undefined ? 'upper' : this.options.case;
               this.options.format = this.options.format === undefined ? 'hsl' : this.options.format;
+
               this.options.pos = this.options.pos === undefined ? 'bottom left' : this.options.pos;
               this.options.swatch = this.options.swatch === undefined ? true : this.options.swatch;
               this.options.swatchOnly = this.options.swatchOnly === undefined ? false : this.options.swatchOnly;
               this.options.swatchPos = this.options.swatchPos === undefined ? 'left' : this.options.swatchPos;
               this.options.swatchBootstrap = this.options.swatchBootstrap === undefined ? true : this.options.swatchBootstrap;
               this.options.inline = this.options.inline === undefined ? false : this.options.inline;
+              this.updateBackgroundColor = this.options.updateBackgroundColor === undefined ? false : this.options.updateBackgroundColor;
 
               this.visible = this.options.inline;
           }
@@ -541,6 +547,7 @@
       }, {
           key: 'gridUpdate',
           value: function gridUpdate() {
+              if (!this.options.updateBackgroundColor) return;
               var el = angular.element(this.$element[0].querySelector('.color-picker-grid'));
 
               el.css({

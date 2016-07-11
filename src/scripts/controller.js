@@ -160,15 +160,17 @@ export default class AngularColorPickerController {
             this.opacityUpdate();
 
             this.callApiFunction('onOpen');
+
+            this.$scope.$apply();
         };
 
         this.api.close = () => {
             if (!this.options.inline && (this.visible || this.$element[0].querySelector('.color-picker-panel').offsetParent !== null)) {
 
                 this.visible = false;
-                this.$scope.$apply();
-
                 this.callApiFunction('onClose');
+
+                this.$scope.$apply();
             }
         };
     }
@@ -323,17 +325,21 @@ export default class AngularColorPickerController {
         }
 
         this.options.disabled = this.options.disabled === undefined ? false : this.options.disabled;
+
         this.options.showHue = this.options.showHue === undefined ? true : this.options.showHue;
         this.options.showAlpha = this.options.showAlpha === undefined ? true : this.options.showAlpha;
         this.options.isRound = !this.options.showHue && !this.options.showAlpha;
+
         this.options.case = this.options.case === undefined ? 'upper' : this.options.case;
         this.options.format = this.options.format === undefined ? 'hsl' : this.options.format;
+
         this.options.pos = this.options.pos === undefined ? 'bottom left' : this.options.pos;
         this.options.swatch = this.options.swatch === undefined ? true : this.options.swatch;
         this.options.swatchOnly = this.options.swatchOnly === undefined ? false : this.options.swatchOnly;
         this.options.swatchPos = this.options.swatchPos === undefined ? 'left' : this.options.swatchPos;
         this.options.swatchBootstrap = this.options.swatchBootstrap === undefined ? true : this.options.swatchBootstrap;
         this.options.inline = this.options.inline === undefined ? false : this.options.inline;
+        this.updateBackgroundColor = this.options.updateBackgroundColor === undefined ? false : this.options.updateBackgroundColor;
 
         this.visible = this.options.inline;
     }
@@ -480,6 +486,7 @@ export default class AngularColorPickerController {
     }
 
     gridUpdate () {
+        if(!this.options.updateBackgroundColor) return;
         var el = angular.element(this.$element[0].querySelector('.color-picker-grid'));
 
         el.css({
