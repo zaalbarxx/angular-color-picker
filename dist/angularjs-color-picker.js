@@ -1,10 +1,10 @@
 /*!
- * angularjs-color-picker v2.1.5
+ * angularjs-color-picker v2.1.6
  * https://github.com/ruhley/angular-color-picker/
  *
  * Copyright 2016 ruhley
  *
- * 2016-07-21 19:19:22
+ * 2016-07-22 11:14:13
  *
  */
 
@@ -188,7 +188,6 @@
               this.android_version = _android_version && _android_version.length > 1 ? parseFloat(_android_version[1]) : NaN;
 
               // needed variables
-              this.onChangeValue = null;
               this.updateModel = true;
 
               //---------------------------
@@ -342,6 +341,12 @@
       }, {
           key: 'onChange',
           value: function onChange(event) {
+              // on first firing, set this so it doesn't fire twice
+              if (!this.hasOwnProperty('onChangeValue')) {
+                  this.onChangeValue = this.ngModel;
+              }
+
+              // this can be triggered by both click and mouseup, so don't fire twice
               if (this.ngModel !== this.onChangeValue) {
                   this.onChangeValue = this.ngModel;
 

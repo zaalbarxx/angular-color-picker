@@ -31,7 +31,7 @@ rollup.rollup({
             console.log(arguments);
         });
     } catch (e) {
-        console.log(e);
+        console.error(e);
     }
 }, function(response) {
     console.log(response);
@@ -67,7 +67,7 @@ rollup.rollup({
             console.log(arguments);
         });
     } catch (e) {
-        console.log(e);
+        console.error(e);
     }
 }, function(response) {
     console.log(response);
