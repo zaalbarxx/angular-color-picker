@@ -1,12 +1,13 @@
 import tinycolor from 'tinycolor2';
 
 export default class AngularColorPickerController {
-    constructor(_$scope, _$element, _$document, _$timeout) {
+    constructor(_$scope, _$element, _$document, _$timeout, _ColorPickerOptions) {
         // set angular injected variables
         this.$scope = _$scope;
         this.$element = _$element;
         this.$document = _$document;
         this.$timeout = _$timeout;
+        this.ColorPickerOptions = _ColorPickerOptions;
 
         this.$scope.init = this.init.bind(this);
 
@@ -364,36 +365,7 @@ export default class AngularColorPickerController {
     }
 
     initConfig () {
-        this.options = this.merge(this.options, {
-            disabled: false,
-            hue: true,
-            alpha: true,
-            round: false,
-            case: 'upper',
-            format: 'hsl',
-            pos: 'bottom left',
-            swatch: true,
-            swatchOnly: false,
-            swatchPos: 'left',
-            swatchBootstrap: true,
-            inline: false,
-            placeholder: '',
-            close: {
-                show: false,
-                label: 'Close',
-                class: '',
-            },
-            clear: {
-                show: false,
-                label: 'Clear',
-                class: '',
-            },
-            reset: {
-                show: false,
-                label: 'Reset',
-                class: '',
-            },
-        });
+        this.options = this.merge(this.options, this.ColorPickerOptions);
 
         this.visible = this.options.inline;
 
@@ -853,4 +825,4 @@ export default class AngularColorPickerController {
     }
 }
 
-AngularColorPickerController.$inject = ['$scope', '$element', '$document', '$timeout'];
+AngularColorPickerController.$inject = ['$scope', '$element', '$document', '$timeout', 'ColorPickerOptions'];
