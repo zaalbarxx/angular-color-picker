@@ -1,12 +1,13 @@
 import tinycolor from 'tinycolor2';
 
 export default class AngularColorPickerController {
-    constructor(_$scope, _$element, _$document, _$timeout) {
+    constructor(_$scope, _$element, _$document, _$timeout, _ColorPickerOptions) {
         // set angular injected variables
         this.$scope = _$scope;
         this.$element = _$element;
         this.$document = _$document;
         this.$timeout = _$timeout;
+        this.ColorPickerOptions = _ColorPickerOptions;
 
         this.$scope.init = this.init.bind(this);
 
@@ -193,7 +194,8 @@ export default class AngularColorPickerController {
                 'AngularColorPickerController.options.swatch',
                 'AngularColorPickerController.options.pos',
                 'AngularColorPickerController.options.inline',
-                'AngularColorPickerController.options.placeholder'
+                'AngularColorPickerController.options.placeholder',
+                'AngularColorPickerController.options.round',
             ],
             this.reInit.bind(this)
         );
@@ -363,38 +365,13 @@ export default class AngularColorPickerController {
     }
 
     initConfig () {
-        this.options = this.merge(this.options, {
-            disabled: false,
-            hue: true,
-            alpha: true,
-            round: false,
-            case: 'upper',
-            format: 'hsl',
-            pos: 'bottom left',
-            swatch: true,
-            swatchOnly: false,
-            swatchPos: 'left',
-            swatchBootstrap: true,
-            inline: false,
-            placeholder: '',
-            close: {
-                show: false,
-                label: 'Close',
-                class: '',
-            },
-            clear: {
-                show: false,
-                label: 'Clear',
-                class: '',
-            },
-            reset: {
-                show: false,
-                label: 'Reset',
-                class: '',
-            },
-        });
+        this.options = this.merge(this.options, this.ColorPickerOptions);
 
         this.visible = this.options.inline;
+
+        if (this.options.round) {
+            this.options.hue = false;
+        }
     }
 
     merge(options, defaultOptions) {
@@ -517,9 +494,11 @@ export default class AngularColorPickerController {
             var el = angular.element(this.$element[0].querySelector('.color-picker-grid .color-picker-picker'));
             var bounding = container.getBoundingClientRect();
 
-            el.css({
-                'top': (bounding.height * this.lightnessPos / 100) + 'px',
-            });
+            if (!this.options.round) {
+                el.css({
+                    'top': (bounding.height * this.lightnessPos / 100) + 'px',
+                });
+            }
         });
     }
 
@@ -529,7 +508,7 @@ export default class AngularColorPickerController {
             var el = angular.element(this.$element[0].querySelector('.color-picker-grid .color-picker-picker'));
             var bounding = container.getBoundingClientRect();
 
-            if(this.options.round) {
+            if (this.options.round) {
                 el.css({
                     left: (bounding.width * this.xPos / 100) + 'px',
                     top: (bounding.height * this.yPos / 100) + 'px',
@@ -544,7 +523,6 @@ export default class AngularColorPickerController {
     }
 
     gridUpdate () {
-        if(!this.options.updateBackgroundColor) return;
         var el = angular.element(this.$element[0].querySelector('.color-picker-grid'));
 
         el.css({
@@ -673,21 +651,21 @@ export default class AngularColorPickerController {
         var el = this.find('.color-picker-grid-inner');
         var offset = this.offset(el);
 
-        if(this.options.round) {
+        if (this.options.round) {
             var dx = ((event.pageX - offset.left) * 2.0  / el.prop('offsetWidth')) - 1.0;
             var dy = -((event.pageY - offset.top) * 2.0  / el.prop('offsetHeight')) + 1.0;
 
-            var tmpSaturation = Math.sqrt(dx*dx + dy*dy);
+            var tmpSaturation = Math.sqrt(dx * dx + dy * dy);
             var tmpHue = Math.atan2(dy, dx);
 
             this.saturation = 100 * tmpSaturation;
             var degHue = tmpHue * 57.29577951308233; // rad to deg
-            if (degHue < 0.0)
+            if (degHue < 0.0) {
                 degHue += 360.0;
+            }
             this.hue = degHue;
             this.lightness =  100;
-        }
-        else {
+        } else {
             this.saturation = ((event.pageX - offset.left) / el.prop('offsetWidth')) * 100;
             this.lightness = (1 - ((event.pageY - offset.top) / el.prop('offsetHeight'))) * 100;
 
@@ -710,12 +688,26 @@ export default class AngularColorPickerController {
             if (this.options.round) {
                 var angle = this.hue * 0.01745329251994; // deg to rad
                 var px = Math.cos(angle) * this.saturation;
-                var py = -Math.sin(angle) * this.saturation ;
+                var py = -Math.sin(angle) * this.saturation;
 
                 this.xPos = (px + 100.0) * 0.5;
-                this.yPos =  (py + 100.0) * 0.5;
-            }
-            else {
+                this.yPos = (py + 100.0) * 0.5;
+
+                // because we are using percentages this can be half of 100%
+                var center = 50;
+                // distance of pointer from the center of the circle
+                var distance = Math.pow(center - this.xPos, 2) + Math.pow(center - this.yPos, 2);
+                // distance of edge of circle from the center of the circle
+                var radius = Math.pow(center, 2);
+
+                // if not inside the circle
+                if (distance > radius) {
+                    var rads = Math.atan2(this.yPos - center, this.xPos - center);
+
+                    this.xPos = Math.cos(rads) * center + center;
+                    this.yPos = Math.sin(rads) * center + center;
+                }
+            } else {
                 this.saturationPos = (this.saturation / 100) * 100;
 
                 if (this.saturationPos < 0) {
@@ -833,4 +825,4 @@ export default class AngularColorPickerController {
     }
 }
 
-AngularColorPickerController.$inject = ['$scope', '$element', '$document', '$timeout'];
+AngularColorPickerController.$inject = ['$scope', '$element', '$document', '$timeout', 'ColorPickerOptions'];
